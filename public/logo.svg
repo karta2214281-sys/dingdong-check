@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="152 136 748 748">
+  <style>
+    svg { color: #1d6fe8; }
+    @media (prefers-color-scheme: dark) { svg { color: #4c94f5; } }
+  </style>
+  <defs>
+    <mask id="glass" maskUnits="userSpaceOnUse" x="152" y="136" width="748" height="748">
+      <rect x="152" y="136" width="748" height="748" fill="white"/>
+      <circle cx="539" cy="502.8" r="192.3" fill="black"/>
+      <rect x="538.09" y="651.62" width="340" height="71" transform="rotate(45.4 708.09 687.12)" fill="black"/>
+    </mask>
+  </defs>
+  <path fill="currentColor" mask="url(#glass)" d="M186 144H528A366 366 0 0 1 528 876H186A28 28 0 0 1 158 848V172A28 28 0 0 1 186 144Z"/>
+</svg>

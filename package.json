@@ -1,0 +1,13 @@
+{
+  "name": "de-di-de",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tools/test.js",
+    "build-data": "python3 tools/build-data.py"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

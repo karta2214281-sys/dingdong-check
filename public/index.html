@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="訂咚錯字檢查器。檢查錯字、常見成語和重複打字。文章只在檢查時送到伺服器，不會存進資料庫，也不用於 AI 學習。">
+<title>訂咚錯字檢查器</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script>
+try {
+  var saved = localStorage.getItem('dedide-theme');
+  var theme = saved === 'dark' || saved === 'light'
+    ? saved
+    : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = theme;
+} catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <svg class="logo" viewBox="152 136 748 748" width="32" height="32" aria-hidden="true">
+        <defs>
+          <mask id="logoGlass" maskUnits="userSpaceOnUse" x="152" y="136" width="748" height="748">
+            <rect x="152" y="136" width="748" height="748" fill="white"/>
+            <circle cx="539" cy="502.8" r="192.3" fill="black"/>
+            <rect x="538.09" y="651.62" width="340" height="71" transform="rotate(45.4 708.09 687.12)" fill="black"/>
+          </mask>
+        </defs>
+        <path mask="url(#logoGlass)" d="M186 144H528A366 366 0 0 1 528 876H186A28 28 0 0 1 158 848V172A28 28 0 0 1 186 144Z"/>
+      </svg>
+      <h1>訂咚錯字檢查器</h1>
+    </div>
+    <button class="theme" id="themeBtn" type="button" aria-pressed="false" aria-label="切換深色模式">
+      <svg class="icon-moon" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M14.5 11.2A6.2 6.2 0 0 1 6.8 3.5 6.2 6.2 0 1 0 14.5 11.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <svg class="icon-sun" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 1.8v1.6M9 14.6v1.6M1.8 9h1.6M14.6 9h1.6M3.7 3.7l1.1 1.1M13.2 13.2l1.1 1.1M14.3 3.7l-1.1 1.1M4.8 13.2l-1.1 1.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+  <main class="grid">
+    <section class="pane views">
+      <div class="pane-head">
+        <div class="tabs" role="tablist" aria-label="檢視">
+          <button class="tab" id="tabSrc" type="button" role="tab" aria-selected="true" aria-controls="srcPanel">原稿</button>
+          <button class="tab" id="tabOut" type="button" role="tab" aria-selected="false" aria-controls="outPanel" tabindex="-1">修正結果</button>
+        </div>
+        <div class="tools">
+          <button class="btn" id="clear" type="button">清空</button>
+          <button class="btn" id="copy" type="button">複製全文</button>
+        </div>
+      </div>
+      <div class="view-stack">
+        <div class="panel" id="srcPanel" role="tabpanel" aria-labelledby="tabSrc">
+          <textarea id="src" aria-label="原稿" spellcheck="false" placeholder="把文章貼在這裡。內容只用於這次檢查，不會被存下來。"></textarea>
+        </div>
+        <div class="panel" id="outPanel" role="tabpanel" aria-labelledby="tabOut" hidden>
+          <div class="out-box">
+            <div class="out-hl" id="outHl" aria-hidden="true"></div>
+            <textarea id="out" aria-label="修正結果" spellcheck="false" placeholder="按「檢查錯字」後，修正會出現在這裡。可以直接再改，再按複製全文。"></textarea>
+          </div>
+        </div>
+        <div class="meta" id="count">0/100,000</div>
+      </div>
+    </section>
+
+    <button class="btn primary check-btn" id="checkBtn" type="button">檢查錯字</button>
+
+    <section class="pane list-pane">
+      <div class="filters" id="filters"></div>
+      <ol class="issues" id="list"></ol>
+    </section>
+  </main>
+
+</div>
+<button class="top-btn" id="topBtn" type="button" aria-label="置頂" hidden>
+  <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4.5 4.5 10M10 4.5 15.5 10M10 4.5V16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<button class="help-btn" id="helpBtn" type="button" aria-label="說明" aria-expanded="false" aria-controls="helpPanel">?</button>
+<div class="help-panel" id="helpPanel" hidden>
+  <div class="help-block">
+    <h3>用法速查</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字</th><th>什麼時候用</th><th>例子</th></tr></thead>
+        <tbody>
+          <tr><td class="k">的</td><td>後面接名詞，表示所屬或形容</td><td class="ex">美麗的花、我的書</td></tr>
+          <tr><td class="k">地</td><td>前面形容、後面接動作</td><td class="ex">慢慢地走、認真地說</td></tr>
+          <tr><td class="k">得</td><td>動詞或形容詞後面，接程度、結果、能不能</td><td class="ex">跑得很快、看得見、累得不行</td></tr>
+          <tr><td class="k">在</td><td>地點、時間、正在進行</td><td class="ex">在家、現在、正在寫</td></tr>
+          <tr><td class="k">再</td><td>又一次、繼續、之後</td><td class="ex">再見、再來一次、不再相信</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="help-block">
+    <h3>怎麼檢查的</h3>
+    <ul>
+      <li>文章只在檢查時送到這個網站的伺服器，檢查完即丟棄，不會存進資料庫，也不會用來訓練 AI。</li>
+      <li>檢查用的是寫好的規則，沒有用 AI。</li>
+      <li>貼上文章後按「檢查錯字」。修正結果會套上改正後的文章，改過的字標成紅色，可以直接再改，再按「複製全文」。</li>
+      <li>修正清單會逐條列出改過的地方。每一條可以按「還原原文」改回那一處，再按「重新套用修正」套回去。紅色是改過的字，上方是改成的字。藍色刪除線是刪掉的字。</li>
+      <li>規則抓不到所有錯誤，也可能誤判。刻意的疊詞或對話裡的重複語氣，可以留著原稿，再在修正結果裡改回來。</li>
+      <li>「建議修正」是可能有錯、要看上下文的地方，預設不改。覺得要改就按「套用修正」，改了想改回來就按「還原原文」。</li>
+      <li>目前檢查錯字和重複打字。錯字包含「的、地、得」「在、再」、成語、常見易錯詞、繁簡轉換錯字和混進文章的簡體字。沒有列進去的錯字不會標出。</li>
+      <li>詞表、成語和注音資料來自教育部《重編國語辭典修訂本》（CC BY-ND 3.0 TW），簡繁對照來自 OpenCC。</li>
+    </ul>
+  </div>
+</div>
+<div class="toast" id="toast" hidden><span id="toastMsg"></span><button type="button" id="undo">復原</button></div>
+<div class="confirm" id="clearConfirm" hidden>
+  <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="clearTitle" aria-describedby="clearText">
+    <h2 id="clearTitle">要清空文章嗎？</h2>
+    <p id="clearText">原稿和修正結果都會清掉。<br>清掉之後可以按「復原」。</p>
+    <div class="confirm-actions">
+      <button class="btn" id="clearCancel" type="button">取消</button>
+      <button class="btn danger" id="clearOk" type="button">清空</button>
+    </div>
+  </div>
+</div>
+
+<script src="client.js"></script>
+</body>
+</html>
