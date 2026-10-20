@@ -26,7 +26,6 @@ let issues = [];
 let corrected = '';
 let reverted = new Set();
 let failed = false;
-let undoValue = null;
 let activeId = null;
 let reqSeq = 0;
 let checking = false;
@@ -188,7 +187,8 @@ function renderHighlight(flash) {
   fitHighlight();
 }
 
-function flashParagraph(range) {
+// 短暫用黃底標出修正結果裡的一段（out 裡的位置）
+function flashRange(range) {
   clearTimeout(flashTimer);
   renderHighlight(range);
   flashTimer = setTimeout(() => {
@@ -329,11 +329,10 @@ function refresh() {
 }
 
 function applyEdit(next, message) {
-  undoValue = src.value;
   src.value = next;
   resetResults();
   paint();
-  toast(message, true);
+  toast(message);
 }
 
 /* ---------- 點選修正：跳到修正結果裡的位置 ---------- */
@@ -392,7 +391,11 @@ function focusIssue(id) {
   const para = paragraphBounds(out.value, start);
   out.setSelectionRange(start, end);
   revealInBox(out, start, para);
-  flashParagraph(para);
+  // 只亮改過的字；刪除的地方沒有字，就亮刪除點前後各一個字
+  const flash = end > start
+    ? { start, end }
+    : { start: Math.max(0, start - 1), end: Math.min(out.value.length, start + 1) };
+  flashRange(flash);
 }
 
 /* ---------- 分類、修正清單、原稿的操作 ---------- */
@@ -497,30 +500,21 @@ $('copy').addEventListener('click', () => {
     setTab('out');
     out.focus();
     out.select();
-    toast('已選取全文，請按複製', false);
+    toast('已選取全文，請按複製');
   };
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(value).then(() => toast('已複製全文', false), fallback);
+    navigator.clipboard.writeText(value).then(() => toast('已複製全文'), fallback);
   } else {
     fallback();
   }
 });
 
-function toast(message, canUndo) {
+function toast(message) {
   $('toastMsg').textContent = message;
-  $('undo').hidden = !canUndo || undoValue === null;
   $('toast').hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { $('toast').hidden = true; }, 4000);
 }
-$('undo').addEventListener('click', () => {
-  if (undoValue === null) return;
-  src.value = undoValue;
-  undoValue = null;
-  resetResults();
-  paint();
-  $('toast').hidden = true;
-});
 
 /* ---------- 捲動位置：用隱藏的鏡像元素算出每個字在畫面上的高度 ---------- */
 function syncMirror(box) {

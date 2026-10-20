@@ -112,11 +112,11 @@ document.documentElement.dataset.theme = theme;
 <button class="top-btn" id="topBtn" type="button" aria-label="置頂" hidden>
   <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4.5 4.5 10M10 4.5 15.5 10M10 4.5V16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
-<div class="toast" id="toast" hidden><span id="toastMsg"></span><button type="button" id="undo">復原</button></div>
+<div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span></div>
 <div class="confirm" id="clearConfirm" hidden>
   <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="clearTitle" aria-describedby="clearText">
     <h2 id="clearTitle">要清空文章嗎？</h2>
-    <p id="clearText">原稿和修正結果都會清掉。<br>清掉之後可以按「復原」。</p>
+    <p id="clearText">原稿和修正結果都會清掉，清掉之後無法復原。</p>
     <div class="confirm-actions">
       <button class="btn" id="clearCancel" type="button">取消</button>
       <button class="btn danger" id="clearOk" type="button">清空</button>

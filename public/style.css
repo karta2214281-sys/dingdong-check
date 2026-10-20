@@ -627,17 +627,6 @@ td.k { width: 2.4em; color: var(--blue); font-size: 1.15rem; font-weight: 700; }
   font-size: .9rem;
 }
 
-.toast button {
-  height: 32px;
-  border: 1px solid #fff;
-  border-radius: 8px;
-  background: transparent;
-  color: #fff;
-  padding: 0 16px;
-  font-size: .84rem;
-  line-height: 1;
-}
-
 .confirm {
   position: fixed;
   inset: 0;
