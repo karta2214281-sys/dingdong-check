@@ -5,6 +5,7 @@ const src = $('src');
 const out = $('out');
 const outHl = $('outHl');
 const list = $('list');
+const listPane = list.closest('.list-pane');
 const filters = $('filters');
 const tabSrc = $('tabSrc');
 const tabOut = $('tabOut');
@@ -616,12 +617,12 @@ out.addEventListener('scroll', () => {
 
 /* ---------- 置頂、說明、尺寸、深色模式 ---------- */
 function syncTop() {
-  const show = list.scrollTop > 240;
+  const show = listPane.scrollTop > 240;
   topBtn.hidden = !show;
   document.body.classList.toggle('has-top', show);
 }
-list.addEventListener('scroll', syncTop, { passive: true });
-topBtn.addEventListener('click', () => list.scrollTo({ top: 0, behavior: smooth() }));
+listPane.addEventListener('scroll', syncTop, { passive: true });
+topBtn.addEventListener('click', () => listPane.scrollTo({ top: 0, behavior: smooth() }));
 syncTop();
 
 function setHelp(open) {
