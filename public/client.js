@@ -54,6 +54,7 @@ const charCount = (text) => text.replace(/\s/g, '').length;
 const tooLong = (text) => charCount(text) > MAX_CHARS;
 const smooth = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 const activeBox = () => view === 'out' ? out : src;
+const isTouch = () => matchMedia('(pointer: coarse)').matches;
 
 // 右下角的字數，例如「512/100,000」，超過上限變紅字
 function setCount(text) {
@@ -378,6 +379,8 @@ function focusIssue(id) {
   setTab('out', false);
   paint();
   hold = false;
+  // 觸控裝置上先設成唯讀再 focus，才能標出選取位置又不會叫出鍵盤
+  if (isTouch()) out.readOnly = true;
   out.focus({ preventScroll: true });
   scrollPageTo(out);
   if (out.value !== corrected || !out.value) return;
@@ -433,6 +436,9 @@ src.addEventListener('input', () => {
   paint();
 });
 $('checkBtn').addEventListener('click', refresh);
+// 使用者自己點修正結果時才解除唯讀，鍵盤照常出現
+out.addEventListener('pointerdown', () => { out.readOnly = false; });
+out.addEventListener('blur', () => { out.readOnly = false; });
 out.addEventListener('input', () => {
   renderHighlight();
   if (view === 'out') setCount(out.value);
