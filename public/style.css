@@ -107,13 +107,13 @@ textarea:focus-visible,
 .brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
 }
 
 .logo {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   flex: none;
   display: block;
   color: var(--blue);
@@ -551,6 +551,9 @@ body.has-top .issues { padding-bottom: 80px; }
 }
 
 .top-btn:hover { border-color: var(--blue); background: var(--blue-soft); }
+/* 用滑鼠或手指點不顯示外框；用鍵盤 Tab 選到時才顯示 */
+.top-btn { -webkit-tap-highlight-color: transparent; }
+.top-btn:focus:not(:focus-visible) { outline: none; }
 
 .help-panel {
   position: absolute;

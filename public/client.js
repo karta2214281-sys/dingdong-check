@@ -318,6 +318,8 @@ function refresh() {
     reverted = new Set(issues.filter(isSug).map((it) => it.id));
     publish(text);
     paint();
+    // 檢查完自動切到「修正結果」，停在原稿看到的同一段
+    setTab('out');
   }).catch(async () => {
     if (seq !== reqSeq || src.value !== text) return;
     await settle();
@@ -628,7 +630,10 @@ function syncTop() {
   document.body.classList.toggle('has-top', show);
 }
 listPane.addEventListener('scroll', syncTop, { passive: true });
-topBtn.addEventListener('click', () => listPane.scrollTo({ top: 0, behavior: smooth() }));
+topBtn.addEventListener('click', (e) => {
+  listPane.scrollTo({ top: 0, behavior: smooth() });
+  if (e.detail > 0) topBtn.blur(); // 滑鼠或觸控點擊後不留下選取框
+});
 syncTop();
 
 function setHelp(open) {
