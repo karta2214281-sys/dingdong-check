@@ -35,10 +35,26 @@ document.documentElement.dataset.theme = theme;
     </div>
     <div class="nav-actions">
       <button class="help-btn" id="helpBtn" type="button" aria-label="說明" aria-expanded="false" aria-controls="helpPanel">?</button>
+      <button class="help-btn" id="setBtn" type="button" aria-label="設定" aria-expanded="false" aria-controls="setPanel">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2.6h3.4l.5 2.6a7.4 7.4 0 0 1 1.9 1.1l2.5-.9 1.7 2.9-2 1.7a7.4 7.4 0 0 1 0 2.2l2 1.7-1.7 2.9-2.5-.9a7.4 7.4 0 0 1-1.9 1.1l-.5 2.6h-3.4l-.5-2.6a7.4 7.4 0 0 1-1.9-1.1l-2.5.9-1.7-2.9 2-1.7a7.4 7.4 0 0 1 0-2.2l-2-1.7 1.7-2.9 2.5.9a7.4 7.4 0 0 1 1.9-1.1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
       <button class="theme" id="themeBtn" type="button" aria-pressed="false" aria-label="切換深色模式">
         <svg class="icon-moon" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M14.5 11.2A6.2 6.2 0 0 1 6.8 3.5 6.2 6.2 0 1 0 14.5 11.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 1.8v1.6M9 14.6v1.6M1.8 9h1.6M14.6 9h1.6M3.7 3.7l1.1 1.1M13.2 13.2l1.1 1.1M14.3 3.7l-1.1 1.1M4.8 13.2l-1.1 1.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </button>
+      <div class="help-panel set-panel" id="setPanel" hidden>
+        <h3>設定</h3>
+        <!-- 每個設定一列 .set-row；之後要加設定就照這個格式多加一列 -->
+        <div class="set-list">
+        <label class="set-row">
+          <span class="set-text">
+            <b>「的」「地」不區分</b>
+            <span>開啟後，「慢慢的走」這類用法不會改成「地」。「得」照常檢查。</span>
+          </span>
+          <input type="checkbox" class="switch" id="optDeDi" data-setting="deDiSame">
+        </label>
+        </div>
+      </div>
       <div class="help-panel" id="helpPanel" hidden>
         <div class="help-block">
           <h3>用法速查</h3>
@@ -64,7 +80,9 @@ document.documentElement.dataset.theme = theme;
             <li>修正清單會逐條列出改過的地方。每一條可以按「還原原文」改回那一處，再按「重新套用修正」套回去。紅色是改過的字，上方是改成的字。藍色刪除線是刪掉的字。</li>
             <li>規則抓不到所有錯誤，也可能誤判。</li>
             <li>「重複」和「建議修正」預設不改，因為刻意的疊詞、對話裡的重複語氣，或要看上下文的寫法都可能是對的。覺得要改就按「套用修正」，改了想改回來就按「還原原文」。</li>
+            <li>右上角的設定可以讓「的」「地」不區分。</li>
             <li>目前檢查錯字和重複打字。錯字包含「的、地、得」「在、再」、成語、常見易錯詞、繁簡轉換錯字和混進文章的簡體字。沒有列進去的錯字不會標出。</li>
+            <li>簡體中文的文章也會檢查，改完一樣是簡體。</li>
             <li>詞表、成語和注音資料來自教育部《重編國語辭典修訂本》（CC BY-ND 3.0 TW），簡繁對照來自 OpenCC。</li>
           </ul>
         </div>

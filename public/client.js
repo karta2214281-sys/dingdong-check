@@ -14,6 +14,8 @@ const outPanel = $('outPanel');
 const topBtn = $('topBtn');
 const helpBtn = $('helpBtn');
 const helpPanel = $('helpPanel');
+const setBtn = $('setBtn');
+const setPanel = $('setPanel');
 
 
 /* ---------- 設定 ---------- */
@@ -23,6 +25,8 @@ const SAMPLE = '他發現發現剛剛有一筆資料出錯了，於是慢慢的�
 /* ---------- 狀態 ---------- */
 let filter = 'all';
 let issues = [];
+// 伺服器傳回的全部結果；issues 是套用設定後要顯示的
+let found = [];
 let corrected = '';
 let reverted = new Set();
 let failed = false;
@@ -63,6 +67,29 @@ function setCount(text) {
   const el = $('count');
   el.textContent = n.toLocaleString('en-US') + '/' + MAX_CHARS.toLocaleString('en-US');
   el.classList.toggle('over', n > MAX_CHARS);
+}
+
+/* ---------- 設定 ---------- */
+const SETTINGS_KEY = 'dedide-settings';
+const settings = { deDiSame: false };
+try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
+const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {} };
+
+// 依設定拿掉不需要的結果。「的」「地」不區分時，不把「的」改成「地」
+const allowed = (it) => !(settings.deDiSame && it.from === '的' && it.to === '地');
+const issueKey = (it) => it.start + ':' + it.len + ':' + it.to;
+
+// 設定改了以後重新篩選，已經按過的套用／還原照舊保留
+function refilter() {
+  const off = new Set(issues.filter((it) => reverted.has(it.id)).map(issueKey));
+  const known = new Set(issues.map(issueKey));
+  issues = numberIssues(found.filter(allowed));
+  reverted = new Set(issues
+    .filter((it) => known.has(issueKey(it)) ? off.has(issueKey(it)) : optIn(it))
+    .map((it) => it.id));
+  activeId = null;
+  if (checkedText !== null && checkedText === src.value) publish(src.value);
+  paint();
 }
 
 /* ---------- 修正結果：原文和修正後文字的位置換算 ---------- */
@@ -315,8 +342,8 @@ function refresh() {
     if (seq !== reqSeq || src.value !== text) return;
     checking = false;
     checkedText = text;
-    const found = Array.isArray(data.issues) ? data.issues : [];
-    issues = numberIssues(found.filter((it) => it && typeof it.start === 'number'));
+    found = (Array.isArray(data.issues) ? data.issues : []).filter((it) => it && typeof it.start === 'number');
+    issues = numberIssues(found.filter(allowed));
     reverted = new Set(issues.filter(optIn).map((it) => it.id));
     publish(text);
     paint();
@@ -632,19 +659,38 @@ topBtn.addEventListener('click', (e) => {
 });
 syncTop();
 
-function setHelp(open) {
-  helpBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  helpPanel.hidden = !open;
+// 說明和設定兩個面板，一次只開一個
+const POPUPS = [[helpBtn, helpPanel], [setBtn, setPanel]];
+function setPopup(panel, open) {
+  for (const [btn, p] of POPUPS) {
+    const show = open && p === panel;
+    btn.setAttribute('aria-expanded', show ? 'true' : 'false');
+    p.hidden = !show;
+  }
 }
-helpBtn.addEventListener('click', () => setHelp(helpPanel.hidden));
+const setHelp = (open) => setPopup(helpPanel, open);
+helpBtn.addEventListener('click', () => setPopup(helpPanel, helpPanel.hidden));
+setBtn.addEventListener('click', () => setPopup(setPanel, setPanel.hidden));
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !clearConfirm.hidden) return;
-  if (e.key === 'Escape' && !helpPanel.hidden) setHelp(false);
+  if (e.key === 'Escape') setPopup(null, false);
 });
 document.addEventListener('click', (e) => {
-  if (helpPanel.hidden) return;
-  if (e.target.closest('#helpPanel') || e.target.closest('#helpBtn')) return;
-  setHelp(false);
+  if (helpPanel.hidden && setPanel.hidden) return;
+  if (POPUPS.some(([btn, p]) => e.target.closest('#' + btn.id) || e.target.closest('#' + p.id))) return;
+  setPopup(null, false);
+});
+
+// 設定面板裡有 data-setting 的開關都會自動存起來；之後新增設定只要加一列 HTML
+// 和 settings 的預設值，影響檢查結果的再寫進 allowed()
+setPanel.querySelectorAll('input[data-setting]').forEach((input) => {
+  const key = input.dataset.setting;
+  input.checked = !!settings[key];
+  input.addEventListener('change', () => {
+    settings[key] = input.checked;
+    saveSettings();
+    refilter();
+  });
 });
 
 const stack = src.closest('.view-stack');
