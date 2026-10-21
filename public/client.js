@@ -46,6 +46,8 @@ const MAX_CHARS = 100000;
 const esc = (s) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 // 建議修正（level 為 sug）自成一類，預設不套用，由使用者決定
 const isSug = (it) => it.level === 'sug';
+// 建議修正和重複打字預設不套用，按「套用修正」才改
+const optIn = (it) => isSug(it) || it.cat === 'rep';
 const groupOf = (it) => isSug(it) ? 'sug' : it.cat;
 const shown = () => filter === 'all' ? issues : issues.filter((it) => groupOf(it) === filter);
 const activeIssues = () => issues.filter((it) => !reverted.has(it.id));
@@ -240,7 +242,7 @@ function paint() {
       const del = it.to === '';
       const on = activeId === it.id ? ' on' : '';
       const off = reverted.has(it.id);
-      const label = off ? (isSug(it) ? '套用修正' : '重新套用修正') : '還原原文';
+      const label = off ? (optIn(it) ? '套用修正' : '重新套用修正') : '還原原文';
       const kind = (del ? 'del' : 'fix') + (isSug(it) ? ' sug' : '') + (off ? ' off' : '');
       return '<li class="card ' + kind + on + '" data-id="' + it.id + '" tabindex="0">' +
         '<p class="ctx">' + snippet(text, it) + '</p>' +
@@ -315,7 +317,7 @@ function refresh() {
     checkedText = text;
     const found = Array.isArray(data.issues) ? data.issues : [];
     issues = numberIssues(found.filter((it) => it && typeof it.start === 'number'));
-    reverted = new Set(issues.filter(isSug).map((it) => it.id));
+    reverted = new Set(issues.filter(optIn).map((it) => it.id));
     publish(text);
     paint();
     // 檢查完自動切到「修正結果」，停在原稿看到的同一段
