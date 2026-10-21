@@ -703,6 +703,30 @@ td.k { width: 2.4em; color: var(--blue); font-size: 1.15rem; font-weight: 700; }
 .toast[hidden],
 .confirm[hidden] { display: none !important; }
 
+/* 電腦版：左邊輸入文字，右邊修正清單，兩邊各自捲動 */
+@media (min-width: 960px) {
+  .nav-inner,
+  .wrap { max-width: 80rem; }
+  .wrap { padding-bottom: 24px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: 32px;
+    row-gap: 16px;
+  }
+  .views { grid-column: 1; grid-row: 1; }
+  .check-btn { grid-column: 1; grid-row: 2; }
+  .list-pane {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    padding-right: 4px;
+  }
+  /* 檢查完按鈕會藏起來，左邊的框往下延伸，跟右邊一樣高 */
+  .grid:has(.check-btn[hidden]) .views { grid-row: 1 / 3; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .card,
   .chip,
